@@ -1,94 +1,93 @@
-const Canvas = require('./lib/canvas')
-const Image = require('./lib/image')
-const CanvasRenderingContext2D = require('./lib/context2d')
-const CanvasPattern = require('./lib/pattern')
-const parseFont = require('./lib/parse-font')
-const packageJson = require('./package.json')
-const bindings = require('./lib/bindings')
-const fs = require('fs')
-const PNGStream = require('./lib/pngstream')
-const PDFStream = require('./lib/pdfstream')
-const JPEGStream = require('./lib/jpegstream')
-const { DOMPoint, DOMMatrix } = require('./lib/DOMMatrix')
+console.clear();
+console.log('[INFO]: Loading...');
+const { Client, Collection } = require('discord.js');
+const { prefix, token } = require('./config.json');
+const client = new Client({ //PLASMİC - DİSCORD.GG/JAVASCRIPT
+	disableMentions: 'everyone'
+});
+const moment = require('moment');
+const db = require('quick.db');
+const fs = require('fs');
+require('./util/eventLoader.js')(client);
+const ayarlar = require('./config.json');
+const Discord = require('discord.js');
+  const log = message => {
+   console.log(`[${moment().format("YYYY-MM-DD HH:mm:ss")}] ${message}`); //PLASMİC - DİSCORD.GG/JAVASCRIPT
+ };
+ client.commands = new Discord.Collection();
+ client.aliases = new Discord.Collection();
+ fs.readdir("./commands/", (err, files) => { //PLASMİC - DİSCORD.GG/JAVASCRIPT
+    if (err) console.error(err);
+    files.forEach(f => {
+  fs.readdir(`./commands/${f}/`, (err, filess) => {
+    if (err) console.error(err);
+    log(`${f} Klasöründen ${filess.length} Komut Yüklenecek;`);
+    filess.forEach(fs => { //PLASMİC - DİSCORD.GG/JAVASCRIPT
+      let props = require(`./commands/${f}/${fs}`);
+      log(`${props.help.name} // Yüklendi`);
+      client.commands.set(props.help.name, props);
+      props.conf.aliases.forEach(alias => {
+        client.aliases.set(alias, props.help.name);
+      });
+     });//PLASMİC - DİSCORD.GG/JAVASCRIPT
+    });//PLASMİC - DİSCORD.GG/JAVASCRIPT
+   });//PLASMİC - DİSCORD.GG/JAVASCRIPT
+  });//PLASMİC - DİSCORD.GG/JAVASCRIPT
+//PLASMİC - DİSCORD.GG/JAVASCRIPT
+//PLASMİC - DİSCORD.GG/JAVASCRIPT
+client.elevation = message => {//PLASMİC - DİSCORD.GG/JAVASCRIPT
+	if (!message.guild) {//PLASMİC - DİSCORD.GG/JAVASCRIPT
+		return;//PLASMİC - DİSCORD.GG/JAVASCRIPT
+	}//PLASMİC - DİSCORD.GG/JAVASCRIPT
+	let permlvl = 0;
+	if (message.member.hasPermission('BAN_MEMBERS')) permlvl = 2;//PLASMİC - DİSCORD.GG/JAVASCRIPT
+	if (message.member.hasPermission('ADMINISTRATOR')) permlvl = 3;//PLASMİC - DİSCORD.GG/JAVASCRIPT
+	if (message.author.id === ayarlar.sahip || message.author.id === "427053194384769025") permlvl = 4;//PLASMİC - DİSCORD.GG/JAVASCRIPT
+	return permlvl;
+};
+client.on('ready', () => {
+	console.log(`[INFO]: Ready on client (${client.user.tag})`);
+	client.user.setActivity(',yardım', { type: 'WATCHING' });
+  client.user.setStatus("idle")
+});
+client.login(token)//PLASMİC - DİSCORD.GG/JAVASCRIPT
+if (!db.get("giveaways")) db.set("giveaways", []);
 
-function createCanvas (width, height, type) {
-  return new Canvas(width, height, type)
-}
+const GiveawayManagerWithOwnDatabase = class extends GiveawaysManager {
+  async getAllGiveaways() {
+    return db.get("giveaways");
+  }
 
-function createImageData (array, width, height) {
-  return new bindings.ImageData(array, width, height)
-}
+  async saveGiveaway(messageID, giveawayData) {
+    db.push("giveaways", giveawayData);
+    return true;
+  }
 
-function loadImage (src) {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
+  async editGiveaway(messageID, giveawayData) {
+    const giveaways = db.get("giveaways");
+    const newGiveawaysArray = giveaways.filter(
+      giveaway => giveaway.messageID !== messageID
+    );
+    newGiveawaysArray.push(giveawayData);
+    db.set("giveaways", newGiveawaysArray);
+    return true;
+  }
 
-    function cleanup () {
-      image.onload = null
-      image.onerror = null
-    }
-
-    image.onload = () => { cleanup(); resolve(image) }
-    image.onerror = (err) => { cleanup(); reject(err) }
-
-    image.src = src
-  })
-}
-
-/**
- * Resolve paths for registerFont. Must be called *before* creating a Canvas
- * instance.
- * @param src {string} Path to font file.
- * @param fontFace {{family: string, weight?: string, style?: string}} Object
- * specifying font information. `weight` and `style` default to `"normal"`.
- */
-function registerFont (src, fontFace) {
-  // TODO this doesn't need to be on Canvas; it should just be a static method
-  // of `bindings`.
-  return Canvas._registerFont(fs.realpathSync(src), fontFace)
-}
-
-/**
- * Unload all fonts from pango to free up memory
- */
-function deregisterAllFonts () {
-  return Canvas._deregisterAllFonts()
-}
-
-module.exports = {
-  Canvas,
-  Context2d: CanvasRenderingContext2D, // Legacy/compat export
-  CanvasRenderingContext2D,
-  CanvasGradient: bindings.CanvasGradient,
-  CanvasPattern,
-  Image,
-  ImageData: bindings.ImageData,
-  PNGStream,
-  PDFStream,
-  JPEGStream,
-  DOMMatrix,
-  DOMPoint,
-
-  registerFont,
-  deregisterAllFonts,
-  parseFont,
-
-  createCanvas,
-  createImageData,
-  loadImage,
-
-  backends: bindings.Backends,
-
-  /** Library version. */
-  version: packageJson.version,
-  /** Cairo version. */
-  cairoVersion: bindings.cairoVersion,
-  /** jpeglib version. */
-  jpegVersion: bindings.jpegVersion,
-  /** gif_lib version. */
-  gifVersion: bindings.gifVersion ? bindings.gifVersion.replace(/[^.\d]/g, '') : undefined,
-  /** freetype version. */
-  freetypeVersion: bindings.freetypeVersion,
-  /** rsvg version. */
-  rsvgVersion: bindings.rsvgVersion
-}
+  async deleteGiveaway(messageID) {
+    const newGiveawaysArray = db
+      .get("giveaways")
+      .filter(giveaway => giveaway.messageID !== messageID);
+    db.set("giveaways", newGiveawaysArray);
+    return true;
+  }
+};
+const manager = new GiveawayManagerWithOwnDatabase(client, {
+  storage: false,
+  updateCountdownEvery: 5000,
+  default: {
+    botsCanWin: false,
+    embedColor: "#0a99ff",
+    reaction: "🎉"
+  }
+});
+client.giveawaysManager = manager;

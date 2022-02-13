@@ -1,69 +1,30 @@
 {
-  "name": "canvas",
-  "description": "Canvas graphics API backed by Cairo",
-  "version": "2.9.0",
-  "author": "TJ Holowaychuk <tj@learnboost.com>",
+  "name": "Welcomer",
+  "version": "1.0.0",
+  "description": "uh yes",
   "main": "index.js",
-  "browser": "browser.js",
-  "contributors": [
-    "Nathan Rajlich <nathan@tootallnate.net>",
-    "Rod Vagg <r@va.gg>",
-    "Juriy Zaytsev <kangax@gmail.com>"
-  ],
-  "keywords": [
-    "canvas",
-    "graphic",
-    "graphics",
-    "pixman",
-    "cairo",
-    "image",
-    "images",
-    "pdf"
-  ],
-  "homepage": "https://github.com/Automattic/node-canvas",
-  "repository": "git://github.com/Automattic/node-canvas.git",
   "scripts": {
-    "prebenchmark": "node-gyp build",
-    "benchmark": "node benchmarks/run.js",
-    "lint": "standard examples/*.js test/server.js test/public/*.js benchmarks/run.js lib/context2d.js util/has_lib.js browser.js index.js",
-    "test": "mocha test/*.test.js",
-    "pretest-server": "node-gyp build",
-    "test-server": "node test/server.js",
-    "install": "node-pre-gyp install --fallback-to-build",
-    "dtslint": "dtslint types"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "binary": {
-    "module_name": "canvas",
-    "module_path": "build/Release",
-    "host": "https://github.com/Automattic/node-canvas/releases/download/",
-    "remote_path": "v{version}",
-    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{libc}-{arch}.tar.gz"
-  },
-  "files": [
-    "binding.gyp",
-    "lib/",
-    "src/",
-    "util/",
-    "types/index.d.ts"
-  ],
-  "types": "types/index.d.ts",
+  "keywords": [],
+  "author": "legend-js-dev",
+  "license": "MIT",
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.0",
-    "nan": "^2.15.0",
-    "simple-get": "^3.0.3"
-  },
-  "devDependencies": {
-    "@types/node": "^10.12.18",
-    "assert-rejects": "^1.0.0",
-    "dtslint": "^4.0.7",
-    "express": "^4.16.3",
-    "mocha": "^5.2.0",
-    "pixelmatch": "^4.0.2",
-    "standard": "^12.0.1",
-    "typescript": "^4.2.2"
-  },
-  "engines": {
-    "node": ">=6"
-  },
-  "license": "MIT"
+    "canvas": "^2.6.1",
+    "chalk": "^4.1.0",
+    "config.json": "0.0.4",
+    "croxydb": "0.0.7",
+    "discord-backup": "^2.4.1",
+    "discord-giveaways": "^4.4.3",
+    "discord.js": "^12.5.1",
+    "express": "^4.17.1",
+    "join": "^3.0.0",
+    "moment": "^2.29.1",
+    "moment-duration-format": "^2.3.2",
+    "ms": "^2.1.3",
+    "os-utils": "0.0.14",
+    "plasma-db": "^1.1.0",
+    "quick.db": "^7.1.3",
+    "quickmongo": "^3.0.0"
+  }
 }
